@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "196115756208",
+    "project_id": "wifi-password-show-41a39",
+    "storage_bucket": "wifi-password-show-41a39.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:196115756208:android:c6890e5bbf818cd293f775",
+        "android_client_info": {
+          "package_name": "wifi.key.show.master.show.all.wifi.password"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBtYze2LuEoTFLF86qvFEVg9-4ECXfi_C4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

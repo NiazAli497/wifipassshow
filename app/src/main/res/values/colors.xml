@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#265784</color>
+    <color name="colorPrimaryDark">#265784</color>
+    <color name="colorAccent">#265784
+    </color>
+    <color name="colorsettings">#000000</color>
+    <color name="color_hover">#ccf2ff</color>
+    <color name="mycolor">#4385f5</color>
+    <color name="blue">#2398f9</color>
+    <color name="white">#ffff</color>
+    <color name="black">#000000</color>
+
+
+    <color name="new_blue">#265784</color>
+    <color name="new_text_color">#5C5C5C</color>
+    <color name="new_orange">#FF9900</color>
+    <color name="view_divider_color">#C2C2C2</color>
+    <color name="bg_color_new">#e7eaef</color>
+    <color name="small_native_bg">#F4F2F2</color>
+</resources>

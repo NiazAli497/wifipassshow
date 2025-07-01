@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <ImageView
+        android:id="@+id/image_top"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_wifi_setting_top"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:scaleType="fitXY"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/display_qr_code"
+        android:fontFamily="@font/ibm_font"
+        android:textSize="@dimen/_16ssp"
+        android:textColor="@color/white"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="@dimen/_20sdp"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
+
+
+
+    <ImageView
+        android:id="@+id/imagee"
+        android:layout_width="match_parent"
+        android:src="@android:color/white"
+        android:layout_height="0dp"
+        android:layout_margin="@dimen/_10sdp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/image_top"
+        app:layout_constraintBottom_toTopOf="@+id/guide_h1"
+        />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guide_h1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.5"
+        />
+
+    <TextView
+        android:id="@+id/note_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="@dimen/_10sdp"
+        android:text="@string/click_on_button_to_get_the_decrypted_wifi_password"
+       android:textColor="@color/black"
+        android:textSize="@dimen/_13sdp"
+        android:textAlignment="center"
+        android:fontFamily="@font/ibm_font"
+        app:layout_constraintTop_toBottomOf="@+id/guide_h1"
+        />
+
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/decrypt"
+        android:layout_width="@dimen/_120sdp"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="@dimen/_10sdp"
+        android:textColor="@color/white"
+        android:fontFamily="@font/ibm_font"
+        android:textAllCaps="false"
+        android:text="@string/decrypt"
+        android:textStyle="bold"
+        android:background="@drawable/shape_button_speed"
+        app:layout_constraintTop_toBottomOf="@+id/note_text"
+        />
+
+    <TextView
+        android:id="@+id/result"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:textColor="@color/black"
+        android:fontFamily="@font/ibm_font"
+        android:textSize="@dimen/_20ssp"
+        app:layout_constraintTop_toBottomOf="@+id/decrypt"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
+<!--    <androidx.cardview.widget.CardView-->
+<!--        android:id="@+id/decrypt"-->
+<!--        android:layout_width="@dimen/_150sdp"-->
+<!--        android:layout_height="@dimen/_30sdp"-->
+<!--        android:layout_gravity="center"-->
+<!--        android:layout_marginBottom="@dimen/_10sdp"-->
+<!--        app:cardBackgroundColor="@color/new_blue"-->
+<!--        app:cardCornerRadius="@dimen/_20sdp">-->
+
+<!--        <TextView-->
+<!--            android:layout_width="@dimen/_100sdp"-->
+<!--            android:layout_height="@dimen/_30sdp"-->
+<!--            android:layout_gravity="center"-->
+<!--            android:gravity="center"-->
+<!--            android:text="Decrypt"-->
+<!--            android:textColor="@android:color/white"-->
+<!--            android:fontFamily="@font/ibm_font"-->
+<!--            android:textStyle="bold" />-->
+<!--    </androidx.cardview.widget.CardView>-->
+
+
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

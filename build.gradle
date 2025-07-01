@@ -1,0 +1,72 @@
+buildscript {
+    ext.kotlin_version = "2.1.0"
+    repositories {
+        google()
+        jcenter()
+        mavenCentral()
+        maven { url "https://jitpack.io" }
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.2.2'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath 'com.google.gms:google-services:4.4.2'
+        classpath 'com.google.firebase:firebase-crashlytics-gradle:3.0.3'
+    }
+}
+allprojects {
+    repositories {
+        google()
+        jcenter()
+        mavenCentral()
+        maven { url "https://jitpack.io" }
+        maven { url 'https://github.com/softotalss/barcodescanner/raw/master/maven-repository'}
+        maven {
+            url = uri("https://android-sdk.is.com/")
+            content {
+                includeGroup("com.ironsource.sdk")
+            }
+        }
+        maven{ url = uri ("https://repsy.io/mvn/cleveradssolutions/beta") }
+        maven {
+            url = uri("https://aa-sdk.s3-eu-west-1.amazonaws.com/android_repo")
+            content {
+                includeGroup("tv.superawesome.sdk.publisher")
+            }
+        }
+        maven {
+            url =
+                    uri("https://dl-maven-android.mintegral.com/repository/mbridge_android_sdk_oversea")
+            content {
+                includeGroup("com.mbridge.msdk.oversea")
+            }
+        }
+        maven {
+            url = uri("https://artifact.bytedance.com/repository/pangle")
+            content {
+                includeGroup("com.pangle.global")
+            }
+        }
+        maven {
+            url = uri("https://sdk.tapjoy.com/")
+            content {
+                includeGroup("com.tapjoy")
+            }
+        }
+        maven {
+            url = uri("https://cboost.jfrog.io/artifactory/chartboost-ads/")
+            content {
+                includeGroup("com.chartboost")
+            }
+        }
+        maven {
+            url = uri("https://s3.amazonaws.com/smaato-sdk-releases/")
+            content {
+                includeGroup("com.smaato.android.sdk")
+            }
+        }
+        maven { url = uri("https://artifactory.bidmachine.io/bidmachine") }
+    }
+}
+tasks.register('clean', Delete) {
+    delete rootProject.buildDir
+}

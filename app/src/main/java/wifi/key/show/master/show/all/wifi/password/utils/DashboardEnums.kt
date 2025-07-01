@@ -1,0 +1,5 @@
+package wifi.key.show.master.show.all.wifi.password.utils
+
+enum class DashboardEnums {
+    MY_WIFI,WIFI_INFO,WIFI_TEST_SPEED,WIFI_SETTINGS,WIFI_AUTOMATIC,PASSWORD_GENERATOR,WIFI_SCAN,HOTSPOT,SHOW_WIFI_PASSWORD,WEB_URL_FRAGMENT,HOME_FRAGMENT
+}
