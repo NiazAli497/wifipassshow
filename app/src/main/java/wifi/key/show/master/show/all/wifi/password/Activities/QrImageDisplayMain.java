@@ -33,6 +33,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.airbnb.lottie.LottieAnimationView;
+import com.cleversolutions.ads.AdPaidCallback;
+import com.cleversolutions.ads.AdStatusHandler;
+import com.cleversolutions.ads.MediationManager;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -40,6 +43,7 @@ import java.util.Collections;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import wifi.key.show.master.show.all.wifi.password.Ads.ApplicationClass;
 import wifi.key.show.master.show.all.wifi.password.DatabaseHelper.DataBaseWifiHistory;
 import wifi.key.show.master.show.all.wifi.password.Adapters.ImageAdapter;
 import wifi.key.show.master.show.all.wifi.password.Adapters.RecyclerViewMain;
@@ -48,7 +52,9 @@ import wifi.key.show.master.show.all.wifi.password.R;
 import wifi.key.show.master.show.all.wifi.password.databinding.QrMainBinding;
 import wifi.key.show.master.show.all.wifi.password.model.ImagesModel;
 import wifi.key.show.master.show.all.wifi.password.model.WifiModel;
+import wifi.key.show.master.show.all.wifi.password.utils.AdLoadingDialog;
 import wifi.key.show.master.show.all.wifi.password.utils.AppUtils;
+import wifi.key.show.master.show.all.wifi.password.utils.Constants;
 
 public class QrImageDisplayMain extends AppCompatActivity {
     ArrayList<ImagesModel> imageFiles = new ArrayList<>();
@@ -67,6 +73,10 @@ public class QrImageDisplayMain extends AppCompatActivity {
     File deletedFile;
     private QrMainBinding binding;
 
+    private MediationManager adManager;
+    private AdLoadingDialog adLoadingDialog;
+    private AdPaidCallback adCallback;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,8 +85,19 @@ public class QrImageDisplayMain extends AppCompatActivity {
         wifiModel = new WifiModel();
         setUpDeleteRequestLauncher();
         setClickListeners();
-
         querySavedImages();
+
+        adManager = ApplicationClass.adManager;
+        adLoadingDialog = new AdLoadingDialog(this);
+        adCallback = new AdPaidCallback() {
+            @Override public void onShown(AdStatusHandler ad) { adLoadingDialog.dismiss(); }
+            @Override public void onAdRevenuePaid(AdStatusHandler ad) {}
+            @Override public void onShowFailed(String message) { adLoadingDialog.dismiss(); QrImageDisplayMain.super.onBackPressed(); }
+            @Override public void onClicked() {}
+            @Override public void onComplete() {}
+            @Override public void onClosed() { adLoadingDialog.dismiss(); QrImageDisplayMain.super.onBackPressed(); }
+        };
+
     }
 
     @Override
@@ -383,5 +404,18 @@ public class QrImageDisplayMain extends AppCompatActivity {
         }
 
     }
+
+
+    @Override
+    public void onBackPressed() {
+        Constants.personalInterCounterBack++;
+        if (adManager != null && adManager.isInterstitialReady() && Constants.personalInterCounterBack % 2 == 1) {
+            adLoadingDialog.show();
+            adManager.showInterstitial(this, adCallback);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
 
 }

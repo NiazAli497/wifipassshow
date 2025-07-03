@@ -426,11 +426,24 @@ class HomeActivity : AppCompatActivity() {
                             Manifest.permission.READ_EXTERNAL_STORAGE
                         ) == PackageManager.PERMISSION_GRANTED
                     ) {
-                        val intent = Intent(
-                            this@HomeActivity,
-                            QrImageDisplayMain::class.java
-                        )
-                        startActivity(intent)
+
+
+
+                        adButton = 9
+                        if (Objects.requireNonNull<String?>(Constants.ADS_VALUES[Constants.WIFI_SCAN_INTER])
+                                .equals("true", ignoreCase = true)
+                            && Constants.personalInterCounter % 2 == 1) {
+                            showInterstitial()
+                        } else {
+                            val intent = Intent(
+                                this@HomeActivity,
+                                QrImageDisplayMain::class.java
+                            )
+                            startActivity(intent)
+                        }
+
+
+
                     } else {
                         ActivityCompat.requestPermissions(
                             this@HomeActivity, arrayOf(
@@ -825,6 +838,17 @@ class HomeActivity : AppCompatActivity() {
                             HotSpotShareActivity::class.java
                         ))
                     }
+
+                    9->{
+
+                        val intent = Intent(
+                            this@HomeActivity,
+                            QrImageDisplayMain::class.java
+                        )
+                        startActivity(intent)
+
+                    }
+
                 }
             }
         }
@@ -875,6 +899,16 @@ class HomeActivity : AppCompatActivity() {
                         this@HomeActivity,
                         HotSpotShareActivity::class.java
                     ))
+                }
+
+                9->{
+
+                    val intent = Intent(
+                        this@HomeActivity,
+                        QrImageDisplayMain::class.java
+                    )
+                    startActivity(intent)
+
                 }
             }
         }
