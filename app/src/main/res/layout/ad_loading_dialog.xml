@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_marginHorizontal="@dimen/_12sdp"
+    android:layout_gravity="center"
+    android:background="@drawable/dialog_bg">
+
+    <TextView
+        android:id="@+id/custom_dialog_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:fontFamily="@font/inter"
+        android:layout_marginTop="@dimen/_12sdp"
+        android:layout_marginHorizontal="@dimen/_12sdp"
+        android:includeFontPadding="false"
+        android:textAlignment="center"
+        android:text="@string/please_wait_loading_ads_text"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:textSize="@dimen/_12ssp"/>
+
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/progress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/custom_dialog_title"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="@dimen/_15sdp"
+        android:layout_marginHorizontal="@dimen/_12sdp"
+        android:layout_marginBottom="@dimen/_12sdp"
+        android:indeterminate="true"
+        app:trackColor="@color/black"
+        app:indicatorColor="@color/mycolor" />
+
+
+</RelativeLayout>
