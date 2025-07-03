@@ -45,6 +45,12 @@ import wifi.key.show.master.show.all.wifi.password.utils.AppUtils
 import wifi.key.show.master.show.all.wifi.password.utils.VegaLayoutManager
 import java.io.File
 import java.io.FileOutputStream
+import wifi.key.show.master.show.all.wifi.password.utils.AdLoadingDialog
+import wifi.key.show.master.show.all.wifi.password.utils.Constants
+import com.cleversolutions.ads.MediationManager
+import com.cleversolutions.ads.AdPaidCallback
+import com.cleversolutions.ads.AdStatusHandler
+import wifi.key.show.master.show.all.wifi.password.Ads.ApplicationClass
 
 class WifiScanActivity : AppCompatActivity() {
     var listView: ListView? = null
@@ -69,6 +75,8 @@ class WifiScanActivity : AppCompatActivity() {
     var connectWifiDialog: Dialog? = null
     var generateQRDialog: Dialog? = null
     var showPasswordDialog: Dialog? = null
+    private var adManager: MediationManager? = null
+    private var adLoadingDialog: AdLoadingDialog? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_wifi_scan)
@@ -79,6 +87,8 @@ class WifiScanActivity : AppCompatActivity() {
         recyclerView = findViewById(R.id.recycler)
         dataBaseWifiHistory = DataBaseWifiHistory(this@WifiScanActivity)
         setupRecyclerView()
+        adManager = ApplicationClass.adManager
+        adLoadingDialog = AdLoadingDialog(this)
     }
 
     override fun onStop() {
@@ -736,6 +746,27 @@ class WifiScanActivity : AppCompatActivity() {
                 "Cancel"
             ) { paramDialogInterface, paramInt -> dialog?.create()?.dismiss() }
         dialog?.show()
+    }
+
+    override fun onBackPressed() {
+        Constants.personalInterCounterBack++
+        if (adManager?.isInterstitialReady == true && Constants.personalInterCounterBack % 2 == 1) {
+            adLoadingDialog?.show()
+            adManager?.showInterstitial(this, object : AdPaidCallback {
+                override fun onShown(ad: AdStatusHandler) { adLoadingDialog?.dismiss() }
+                override fun onAdRevenuePaid(ad: AdStatusHandler) {}
+                override fun onShowFailed(message: String) { adLoadingDialog?.dismiss(); superOnBackPressed() }
+                override fun onClicked() {}
+                override fun onComplete() {}
+                override fun onClosed() { adLoadingDialog?.dismiss(); superOnBackPressed() }
+            })
+        } else {
+            super.onBackPressed()
+        }
+    }
+
+    private fun superOnBackPressed() {
+        super.onBackPressed()
     }
 
 }

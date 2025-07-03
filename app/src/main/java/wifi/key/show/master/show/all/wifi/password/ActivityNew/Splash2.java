@@ -26,6 +26,7 @@ public class Splash2 extends AppCompatActivity {
     private boolean appOpenAdVisible = false;
     private Handler handler;
     private Runnable runnable;
+    private boolean splashFinished = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,11 +72,15 @@ public class Splash2 extends AppCompatActivity {
             }
         }catch (Exception ignored){}
     }
+
+
+
+
+
     private void splashHandler(){
         runnable = () -> {
-            if (appOpenAdVisible){
-                appOpenAd.show(Splash2.this);
-            }else {
+            splashFinished = true;
+            if (!appOpenAdVisible){
                 startNextActivity();
             }
         };
@@ -92,16 +97,26 @@ public class Splash2 extends AppCompatActivity {
         super.onPause();
         handler.removeCallbacks(runnable);
     }
+
+
+
+
+
+
+
+
     private void createAppOpenAd() {
         MediationManager initializedManager = ApplicationClass.adManager;
         if (initializedManager == null)
-            appOpenAd = CASAppOpen.create(getPackageName());
+            appOpenAd = CASAppOpen.create(getApplicationContext().getPackageName());
         else {
             appOpenAd = CASAppOpen.create(initializedManager);
         }
         appOpenAd.setContentCallback(new AdCallback() {
             @Override
-            public void onShown(@NonNull AdStatusHandler adStatusHandler) {}
+            public void onShown(@NonNull AdStatusHandler adStatusHandler) {
+                Log.d("CAS_TEST", "onShown: ");
+            }
             @Override
             public void onShowFailed(@NonNull String message) {
                 startNextActivity();
@@ -119,9 +134,19 @@ public class Splash2 extends AppCompatActivity {
             @Override
             public void onAdLoaded() {
                 appOpenAdVisible = true;
+
+                if (!splashFinished && !isFinishing() && !isDestroyed()) {
+                    appOpenAd.show(Splash2.this);
+                    handler.removeCallbacks(runnable);
+                }
             }
             @Override
-            public void onAdFailedToLoad(@NonNull AdError adError) {}
+            public void onAdFailedToLoad(@NonNull AdError adError) {
+                Log.e(ApplicationClass.TAG, "Ad failed to load: " + adError.getMessage());
+                if (!splashFinished) {
+                    startNextActivity();
+                }
+            }
         });
     }
     private void startNextActivity(){

@@ -21,6 +21,8 @@ import androidx.cardview.widget.CardView;
 
 
 import com.cleversolutions.ads.MediationManager;
+import com.cleversolutions.ads.AdPaidCallback;
+import com.cleversolutions.ads.AdStatusHandler;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -31,6 +33,7 @@ import wifi.key.show.master.show.all.wifi.password.MyPrefHelper;
 import wifi.key.show.master.show.all.wifi.password.R;
 import wifi.key.show.master.show.all.wifi.password.SharedPreference.MyPreference;
 import wifi.key.show.master.show.all.wifi.password.databinding.ActivityGeneratePasswordNewBinding;
+import wifi.key.show.master.show.all.wifi.password.utils.AdLoadingDialog;
 import wifi.key.show.master.show.all.wifi.password.utils.Constants;
 
 
@@ -49,6 +52,9 @@ public class WifiPasswordGeneratorActivity extends AppCompatActivity {
 
     ActivityGeneratePasswordNewBinding binding;
     MyPrefHelper prefHelper;
+    private MediationManager adManager;
+    private AdLoadingDialog adLoadingDialog;
+    private AdPaidCallback adCallback;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +76,17 @@ public class WifiPasswordGeneratorActivity extends AppCompatActivity {
         createBanner();
 
         setClickListeners();
+
+        adManager = ApplicationClass.adManager;
+        adLoadingDialog = new AdLoadingDialog(this);
+        adCallback = new AdPaidCallback() {
+            @Override public void onShown(AdStatusHandler ad) { adLoadingDialog.dismiss(); }
+            @Override public void onAdRevenuePaid(AdStatusHandler ad) {}
+            @Override public void onShowFailed(String message) { adLoadingDialog.dismiss(); WifiPasswordGeneratorActivity.super.onBackPressed(); }
+            @Override public void onClicked() {}
+            @Override public void onComplete() {}
+            @Override public void onClosed() { adLoadingDialog.dismiss(); WifiPasswordGeneratorActivity.super.onBackPressed(); }
+        };
     }
     private void createBanner() {
         if (Objects.requireNonNull(Constants.ADS_VALUES.get(Constants.PASS_BANNER)).equalsIgnoreCase("true")){
@@ -190,6 +207,17 @@ public class WifiPasswordGeneratorActivity extends AppCompatActivity {
         super.onDestroy();
         if(mDialog!=null && mDialog.isShowing()){
             mDialog.dismiss();
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        Constants.personalInterCounterBack++;
+        if (adManager != null && adManager.isInterstitialReady() && Constants.personalInterCounterBack % 2 == 1) {
+            adLoadingDialog.show();
+            adManager.showInterstitial(this, adCallback);
+        } else {
+            super.onBackPressed();
         }
     }
 }

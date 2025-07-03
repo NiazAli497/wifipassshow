@@ -16,6 +16,12 @@ import com.github.lzyzsd.circleprogress.ArcProgress;
 import wifi.key.show.master.show.all.wifi.password.MyPrefHelper;
 import wifi.key.show.master.show.all.wifi.password.R;
 import wifi.key.show.master.show.all.wifi.password.databinding.ActivityWifiInfoNewBinding;
+import wifi.key.show.master.show.all.wifi.password.utils.AdLoadingDialog;
+import wifi.key.show.master.show.all.wifi.password.utils.Constants;
+import com.cleversolutions.ads.MediationManager;
+import com.cleversolutions.ads.AdPaidCallback;
+import com.cleversolutions.ads.AdStatusHandler;
+import wifi.key.show.master.show.all.wifi.password.Ads.ApplicationClass;
 
 public class WifiInformationActivity extends AppCompatActivity {
     public String dns_server2,gatewa,dns_server;
@@ -32,6 +38,9 @@ public class WifiInformationActivity extends AppCompatActivity {
     WifiManager wifii;
     WifiConfiguration configuration;
     MyPrefHelper prefHelper;
+    private MediationManager adManager;
+    private AdLoadingDialog adLoadingDialog;
+    private AdPaidCallback adCallback;
 
 //    private MutableLiveData<Integer> myLiveData= new MutableLiveData<>();
 
@@ -128,6 +137,16 @@ public class WifiInformationActivity extends AppCompatActivity {
 
         displayDetails();
 
+        adManager = ApplicationClass.adManager;
+        adLoadingDialog = new AdLoadingDialog(this);
+        adCallback = new AdPaidCallback() {
+            @Override public void onShown(AdStatusHandler ad) { adLoadingDialog.dismiss(); }
+            @Override public void onAdRevenuePaid(AdStatusHandler ad) {}
+            @Override public void onShowFailed(String message) { adLoadingDialog.dismiss(); WifiInformationActivity.super.onBackPressed(); }
+            @Override public void onClicked() {}
+            @Override public void onComplete() {}
+            @Override public void onClosed() { adLoadingDialog.dismiss(); WifiInformationActivity.super.onBackPressed(); }
+        };
 
     }
 
@@ -206,6 +225,17 @@ public class WifiInformationActivity extends AppCompatActivity {
             binding.tvIpAddressTop.setText(ipAddress);
             binding.tvSignalFrequency.setText(frequency);
             tvPing.setText(String.valueOf(t2 - t));
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        Constants.personalInterCounterBack++;
+        if (adManager != null && adManager.isInterstitialReady() && Constants.personalInterCounterBack % 2 == 1) {
+            adLoadingDialog.show();
+            adManager.showInterstitial(this, adCallback);
+        } else {
+            super.onBackPressed();
         }
     }
 

@@ -15,16 +15,19 @@ import wifi.key.show.master.show.all.wifi.password.utils.Constants;
 public class ApplicationClass extends Application {
     public static final String TAG = "CAS_TAG";
     public static MediationManager adManager;
+
+    public static final String CAS_ID = "demo";
     @Override
     public void onCreate() {
         super.onCreate();
         adValuesDefault();
         FirebaseApp.initializeApp(this);
         CAS.settings.setDebugMode(false);
+
         adManager = CAS.buildManager()
-                .withManagerId(getPackageName())
+                .withManagerId("demo")
                 .withAdTypes(AdType.Banner, AdType.Interstitial,AdType.AppOpen,AdType.Rewarded)
-                .withTestAdMode(false)
+                .withTestAdMode(true)
                 .withConsentFlow(
                         new ConsentFlow(true)
                                 .withDismissListener(status -> Log.d(TAG, "Consent Flow dismissed"))
@@ -42,6 +45,9 @@ public class ApplicationClass extends Application {
             public void onAdLoaded(@NonNull AdType adType) {
                 if (adType == AdType.Interstitial) {
                     Log.d(ApplicationClass.TAG, "Interstitial Ad loaded and ready to show");
+                }
+                if (adType == AdType.AppOpen) {
+                    Log.d(ApplicationClass.TAG, "AppOpen Ad loaded and ready to show");
                 }
             }
             @Override

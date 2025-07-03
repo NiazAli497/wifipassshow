@@ -28,6 +28,12 @@ import wifi.key.show.master.show.all.wifi.password.MyPrefHelper;
 import wifi.key.show.master.show.all.wifi.password.R;
 import wifi.key.show.master.show.all.wifi.password.SharedPreference.MyPreference;
 import wifi.key.show.master.show.all.wifi.password.databinding.ActivityWifiSpeedTestNewBinding;
+import wifi.key.show.master.show.all.wifi.password.utils.AdLoadingDialog;
+import wifi.key.show.master.show.all.wifi.password.utils.Constants;
+import com.cleversolutions.ads.MediationManager;
+import com.cleversolutions.ads.AdPaidCallback;
+import com.cleversolutions.ads.AdStatusHandler;
+import wifi.key.show.master.show.all.wifi.password.Ads.ApplicationClass;
 
 public class WifiTestSpeedActivity extends AppCompatActivity {
     DataBaseWifiHistory dataBaseWifiHistory;
@@ -43,6 +49,9 @@ public class WifiTestSpeedActivity extends AppCompatActivity {
     MyPreference preference;
     MyPrefHelper prefHelper;
     ActivityWifiSpeedTestNewBinding binding;
+    private MediationManager adManager;
+    private AdLoadingDialog adLoadingDialog;
+    private AdPaidCallback adCallback;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +79,17 @@ public class WifiTestSpeedActivity extends AppCompatActivity {
 //        isOnline();
 
         setData();
+
+        adManager = ApplicationClass.adManager;
+        adLoadingDialog = new AdLoadingDialog(this);
+        adCallback = new AdPaidCallback() {
+            @Override public void onShown(AdStatusHandler ad) { adLoadingDialog.dismiss(); }
+            @Override public void onAdRevenuePaid(AdStatusHandler ad) {}
+            @Override public void onShowFailed(String message) { adLoadingDialog.dismiss(); WifiTestSpeedActivity.super.onBackPressed(); }
+            @Override public void onClicked() {}
+            @Override public void onComplete() {}
+            @Override public void onClosed() { adLoadingDialog.dismiss(); WifiTestSpeedActivity.super.onBackPressed(); }
+        };
     }
 
     private void setData() {
@@ -195,17 +215,16 @@ public class WifiTestSpeedActivity extends AppCompatActivity {
 //        setupSpeedoMeters();
     }
 
-//    @Override
-//    public void onBackPressed() {
-//        super.onBackPressed();
-//        mHandler.removeCallbacks(mRunnable);
-//    }
-//
-//    @Override
-//    protected void onDestroy() {
-//        super.onDestroy();
-//        mHandler.removeCallbacks(mRunnable);
-//    }
+    @Override
+    public void onBackPressed() {
+        Constants.personalInterCounterBack++;
+        if (adManager != null && adManager.isInterstitialReady() && Constants.personalInterCounterBack % 2 == 1) {
+            adLoadingDialog.show();
+            adManager.showInterstitial(this, adCallback);
+        } else {
+            super.onBackPressed();
+        }
+    }
 
     @SuppressLint("SetTextI18n")
     public void setupSpeedoMeters() {

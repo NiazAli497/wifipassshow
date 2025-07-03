@@ -32,6 +32,12 @@ import com.google.android.gms.tasks.Task;
 
 import wifi.key.show.master.show.all.wifi.password.MyPrefHelper;
 import wifi.key.show.master.show.all.wifi.password.R;
+import wifi.key.show.master.show.all.wifi.password.utils.AdLoadingDialog;
+import wifi.key.show.master.show.all.wifi.password.utils.Constants;
+import com.cleversolutions.ads.MediationManager;
+import com.cleversolutions.ads.AdPaidCallback;
+import com.cleversolutions.ads.AdStatusHandler;
+import wifi.key.show.master.show.all.wifi.password.Ads.ApplicationClass;
 
 public class HotSpotShareActivity extends AppCompatActivity {
     private WifiManager.LocalOnlyHotspotReservation mReservation;
@@ -39,6 +45,10 @@ public class HotSpotShareActivity extends AppCompatActivity {
     private final int REQUEST_ENABLE_LOCATION_SYSTEM_SETTINGS = 101;
     private String TAG = "hellow";
     MyPrefHelper prefHelper;
+    private MediationManager adManager;
+    private AdLoadingDialog adLoadingDialog;
+    private AdPaidCallback adCallback;
+
     private boolean isLocationPermissionEnable() {
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -54,6 +64,16 @@ public class HotSpotShareActivity extends AppCompatActivity {
         setContentView(R.layout.activity_hotspot_new);
         setClickListeners();
         prefHelper= new MyPrefHelper(this);
+        adManager = ApplicationClass.adManager;
+        adLoadingDialog = new AdLoadingDialog(this);
+        adCallback = new AdPaidCallback() {
+            @Override public void onShown(AdStatusHandler ad) { adLoadingDialog.dismiss(); }
+            @Override public void onAdRevenuePaid(AdStatusHandler ad) {}
+            @Override public void onShowFailed(String message) { adLoadingDialog.dismiss(); HotSpotShareActivity.super.onBackPressed(); }
+            @Override public void onClicked() {}
+            @Override public void onComplete() {}
+            @Override public void onClosed() { adLoadingDialog.dismiss(); HotSpotShareActivity.super.onBackPressed(); }
+        };
     }
 
     void setClickListeners(){
@@ -218,5 +238,16 @@ public class HotSpotShareActivity extends AppCompatActivity {
 //            }
 //        }
 //    }
+
+    @Override
+    public void onBackPressed() {
+        Constants.personalInterCounterBack++;
+        if (adManager != null && adManager.isInterstitialReady() && Constants.personalInterCounterBack % 2 == 1) {
+            adLoadingDialog.show();
+            adManager.showInterstitial(this, adCallback);
+        } else {
+            super.onBackPressed();
+        }
+    }
 
 }

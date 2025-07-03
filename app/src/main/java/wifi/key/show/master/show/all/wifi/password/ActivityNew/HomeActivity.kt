@@ -54,6 +54,7 @@ import wifi.key.show.master.show.all.wifi.password.Activities.WifiPasswordGenera
 import wifi.key.show.master.show.all.wifi.password.Activities.WifiScanActivity
 import wifi.key.show.master.show.all.wifi.password.Activities.WifiSettingsActivity
 import wifi.key.show.master.show.all.wifi.password.Activities.WifiTestSpeedActivity
+import wifi.key.show.master.show.all.wifi.password.ActivityNew.HomeActivity
 import wifi.key.show.master.show.all.wifi.password.Adapters.HomeAdapter
 import wifi.key.show.master.show.all.wifi.password.Ads.AdManager
 import wifi.key.show.master.show.all.wifi.password.Ads.ApplicationClass
@@ -65,6 +66,7 @@ import wifi.key.show.master.show.all.wifi.password.databinding.DialogOverlayPerm
 import wifi.key.show.master.show.all.wifi.password.utils.Constants
 import wifi.key.show.master.show.all.wifi.password.utils.DashboardEnums
 import wifi.key.show.master.show.all.wifi.password.utils.MainRecyclerData
+import wifi.key.show.master.show.all.wifi.password.utils.AdLoadingDialog
 import java.util.Objects
 
 
@@ -75,7 +77,8 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var homeAdapter: HomeAdapter
     private var dataList = ArrayList<MainRecyclerData>()
     private var dialog: AlertDialog.Builder? = null
-//    val myLiveData: MutableLiveData<Int> = MutableLiveData()
+
+    //    val myLiveData: MutableLiveData<Int> = MutableLiveData()
     private var adManager: MediationManager? = null
     private var contentCallback: AdCallback? = null
     private var adButton = 0
@@ -108,12 +111,14 @@ class HomeActivity : AppCompatActivity() {
         R.drawable.ic_show_password,
         R.drawable.ic_wifi_icon
     )
-//    var adLoadingDialog: AdLoadingDialog? = null
+
+    //    var adLoadingDialog: AdLoadingDialog? = null
 //    var adLoadingHandler = Handler(Looper.getMainLooper())
     var data = false
     var TAG = "MainActivity"
     var openMessage: DashboardEnums? = null
-//    private val admobRunnable = Runnable {
+
+    //    private val admobRunnable = Runnable {
 //        openMessage?.let { processMessage(it) }
 //    }
 //    private val mReceiver: BroadcastReceiver = object : BroadcastReceiver() {
@@ -159,6 +164,7 @@ class HomeActivity : AppCompatActivity() {
             }
         }
     }
+
     fun calculateSignalStrength(): Int {
         val wifiManager = applicationContext.getSystemService(WIFI_SERVICE) as WifiManager
         val wifiInfo = wifiManager.connectionInfo
@@ -170,18 +176,28 @@ class HomeActivity : AppCompatActivity() {
 
     private fun requestPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(this@HomeActivity, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(
+                    this@HomeActivity,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
                 permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
         }
     }
-    private val permissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()){ _:Boolean? -> }
+
+    private val permissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { _: Boolean? -> }
+
+    private var adLoadingDialog: AdLoadingDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainNewBinding.inflate(layoutInflater)
         setContentView(binding.root)
         binding.wifiName.isSelected = true
+
+        adLoadingDialog = AdLoadingDialog(this)
 
         requestPermission()
 
@@ -193,8 +209,8 @@ class HomeActivity : AppCompatActivity() {
 //            }
 //            Log.d("APPDATAYYY", "value : " + it)
 
-            binding.signalProgress.setText("${calculateSignalStrength()}%")
-            binding.signalProgressBar.setProgress(calculateSignalStrength())
+        binding.signalProgress.setText("${calculateSignalStrength()}%")
+        binding.signalProgressBar.setProgress(calculateSignalStrength())
 
 //        }
 
@@ -220,25 +236,31 @@ class HomeActivity : AppCompatActivity() {
         homeAdapter = HomeAdapter(this, dataList)
         binding.mainRecycler.adapter = homeAdapter
         homeAdapter.onClick = {
-
+            Constants.personalInterCounter++
             when (it) {
                 0 -> {
-                    if (ContextCompat.checkSelfPermission(this@HomeActivity, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-//                        adLoadingProgram(DashboardEnums.WIFI_INFO)
-
+                    if (ContextCompat.checkSelfPermission(
+                            this@HomeActivity,
+                            Manifest.permission.ACCESS_FINE_LOCATION
+                        ) == PackageManager.PERMISSION_GRANTED
+                    ) {
                         adButton = 1
-
-                        Constants.personalInterCounter++
-                        if (Objects.requireNonNull<String?>(Constants.ADS_VALUES[Constants.PERSONAL_INTER]).equals("true", ignoreCase = true) && Constants.personalInterCounter % 3 == 0) {
+                        if (Objects.requireNonNull<String?>(Constants.ADS_VALUES[Constants.PERSONAL_INTER])
+                                .equals("true", ignoreCase = true)
+                            && Constants.personalInterCounter % 2 == 1) {
                             personalAdDialog()
-                        }else{
-                            if (Objects.requireNonNull<String?>(Constants.ADS_VALUES[Constants.WIFI_INFO_INTER]).equals("true", ignoreCase = true)) {
-                                showInterstitial()
-                            }else{
-                                startActivity(Intent(this@HomeActivity, WifiInformationActivity::class.java))
-                            }
+                        } else if (Objects.requireNonNull<String?>(Constants.ADS_VALUES[Constants.WIFI_INFO_INTER])
+                                .equals("true", ignoreCase = true)
+                            && Constants.personalInterCounter % 2 == 1) {
+                            showInterstitial()
+                        } else {
+                            startActivity(
+                                Intent(
+                                    this@HomeActivity,
+                                    WifiInformationActivity::class.java
+                                )
+                            )
                         }
-
                     } else {
                         ActivityCompat.requestPermissions(
                             this@HomeActivity, arrayOf(
@@ -248,7 +270,6 @@ class HomeActivity : AppCompatActivity() {
                         )
                     }
                 }
-
                 1 -> {
                     if (ContextCompat.checkSelfPermission(
                             this@HomeActivity,
@@ -256,10 +277,17 @@ class HomeActivity : AppCompatActivity() {
                         ) == PackageManager.PERMISSION_GRANTED
                     ) {
                         adButton = 2
-                        if (Objects.requireNonNull<String?>(Constants.ADS_VALUES[Constants.WIFI_SPEED_TEST_INTER]).equals("true", ignoreCase = true)) {
+                        if (Objects.requireNonNull<String?>(Constants.ADS_VALUES[Constants.WIFI_SPEED_TEST_INTER])
+                                .equals("true", ignoreCase = true)
+                            && Constants.personalInterCounter % 2 == 1) {
                             showInterstitial()
-                        }else{
-                            startActivity(Intent(this@HomeActivity, WifiTestSpeedActivity::class.java))
+                        } else {
+                            startActivity(
+                                Intent(
+                                    this@HomeActivity,
+                                    WifiTestSpeedActivity::class.java
+                                )
+                            )
                         }
                     } else {
                         ActivityCompat.requestPermissions(
@@ -270,43 +298,52 @@ class HomeActivity : AppCompatActivity() {
                         )
                     }
                 }
-
                 2 -> {
-                    openDataUsageScreen()
+                    adButton = 5
+                    if (Objects.requireNonNull<String?>(Constants.ADS_VALUES[Constants.WIFI_SCAN_INTER])
+                            .equals("true", ignoreCase = true)
+                        && Constants.personalInterCounter % 2 == 1) {
+                        showInterstitial()
+                    } else {
+                        openDataUsageScreen()
+                    }
                 }
-
                 3 -> {
                     if (ContextCompat.checkSelfPermission(
                             this@HomeActivity,
                             Manifest.permission.ACCESS_FINE_LOCATION
                         ) == PackageManager.PERMISSION_GRANTED
                     ) {
-
-
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                             if (!Settings.canDrawOverlays(this)) {
                                 peeramsDialog()
                             } else {
-
-                                val intent =  Intent(
+                                adButton = 6
+                                if (Objects.requireNonNull<String?>(Constants.ADS_VALUES[Constants.WIFI_SPEED_TEST_INTER])
+                                        .equals("true", ignoreCase = true)
+                                    && Constants.personalInterCounter % 2 == 1) {
+                                    showInterstitial()
+                                } else {
+                                    val intent = Intent(
+                                        this@HomeActivity,
+                                        WifiAutomaticActivity::class.java
+                                    )
+                                    startActivity(intent)
+                                }
+                            }
+                        } else {
+                            adButton = 6
+                            if (Objects.requireNonNull<String?>(Constants.ADS_VALUES[Constants.WIFI_SPEED_TEST_INTER])
+                                    .equals("true", ignoreCase = true)
+                                && Constants.personalInterCounter % 2 == 1) {
+                                showInterstitial()
+                            } else {
+                                val intent = Intent(
                                     this@HomeActivity,
                                     WifiAutomaticActivity::class.java
                                 )
                                 startActivity(intent)
-
-//                                adLoadingProgram(DashboardEnums.WIFI_AUTOMATIC)
                             }
-                        } else {
-
-
-                            val intent =  Intent(
-                                this@HomeActivity,
-                                WifiAutomaticActivity::class.java
-                            )
-                            startActivity(intent)
-
-
-//                            adLoadingProgram(DashboardEnums.WIFI_AUTOMATIC)
                         }
                     } else {
                         ActivityCompat.requestPermissions(
@@ -316,37 +353,34 @@ class HomeActivity : AppCompatActivity() {
                             ), 10
                         )
                     }
-
                 }
-
                 4 -> {
-
-                    startActivity(Intent(this, WifiPasswordGeneratorActivity::class.java))
-
-//                    adButton = 3
-//                    showInterstitial()
-
-//                    adLoadingProgram(DashboardEnums.PASSWORD_GENERATOR)
+                    adButton = 7
+                    if (Objects.requireNonNull<String?>(Constants.ADS_VALUES[Constants.WIFI_SPEED_TEST_INTER])
+                            .equals("true", ignoreCase = true)
+                        && Constants.personalInterCounter % 2 == 1) {
+                        showInterstitial()
+                    } else {
+                        startActivity(Intent(this, WifiPasswordGeneratorActivity::class.java))
+                    }
                 }
-                //WifiScan
                 5 -> {
                     if (ContextCompat.checkSelfPermission(
                             this@HomeActivity,
                             Manifest.permission.ACCESS_FINE_LOCATION
                         ) == PackageManager.PERMISSION_GRANTED
                     ) {
-
-//                        adLoadingProgram(DashboardEnums.WIFI_SCAN)
-
                         adButton = 4
-                        if (Objects.requireNonNull<String?>(Constants.ADS_VALUES[Constants.WIFI_SCAN_INTER]).equals("true", ignoreCase = true)) {
+                        if (Objects.requireNonNull<String?>(Constants.ADS_VALUES[Constants.WIFI_SCAN_INTER])
+                                .equals("true", ignoreCase = true)
+                            && Constants.personalInterCounter % 2 == 1) {
                             showInterstitial()
-                        }else{
-                            val wifiManager = applicationContext.getSystemService(WIFI_SERVICE) as WifiManager
+                        } else {
+                            val wifiManager =
+                                applicationContext.getSystemService(WIFI_SERVICE) as WifiManager
                             wifiManager.isWifiEnabled = true
                             startActivity(Intent(this@HomeActivity, WifiScanActivity::class.java))
                         }
-
                     } else {
                         ActivityCompat.requestPermissions(
                             this@HomeActivity, arrayOf(
@@ -356,26 +390,24 @@ class HomeActivity : AppCompatActivity() {
                         )
                     }
                 }
-
                 6 -> {
-
                     if (ContextCompat.checkSelfPermission(
                             this@HomeActivity,
                             Manifest.permission.ACCESS_FINE_LOCATION
                         ) == PackageManager.PERMISSION_GRANTED
                     ) {
-
-
-
-//                        adLoadingProgram(DashboardEnums.HOTSPOT)
-
-                        val intent = Intent(
-                            this@HomeActivity,
-                            HotSpotShareActivity::class.java
-                        )
-                        startActivity(intent)
-
-
+                        adButton = 8
+                        if (Objects.requireNonNull<String?>(Constants.ADS_VALUES[Constants.WIFI_SCAN_INTER])
+                                .equals("true", ignoreCase = true)
+                            && Constants.personalInterCounter % 2 == 1) {
+                            showInterstitial()
+                        } else {
+                            val intent = Intent(
+                                this@HomeActivity,
+                                HotSpotShareActivity::class.java
+                            )
+                            startActivity(intent)
+                        }
                     } else {
                         ActivityCompat.requestPermissions(
                             this@HomeActivity, arrayOf(
@@ -384,11 +416,7 @@ class HomeActivity : AppCompatActivity() {
                             ), 10
                         )
                     }
-
-
                 }
-
-                //Show Wifi Password
                 7 -> {
                     if (ContextCompat.checkSelfPermission(
                             this@HomeActivity,
@@ -398,14 +426,11 @@ class HomeActivity : AppCompatActivity() {
                             Manifest.permission.READ_EXTERNAL_STORAGE
                         ) == PackageManager.PERMISSION_GRANTED
                     ) {
-//                        adLoadingProgram(DashboardEnums.SHOW_WIFI_PASSWORD)
-
                         val intent = Intent(
                             this@HomeActivity,
                             QrImageDisplayMain::class.java
                         )
                         startActivity(intent)
-
                     } else {
                         ActivityCompat.requestPermissions(
                             this@HomeActivity, arrayOf(
@@ -416,19 +441,24 @@ class HomeActivity : AppCompatActivity() {
                         )
                     }
                 }
-                //MyWifiScan
                 8 -> {
                     if (ContextCompat.checkSelfPermission(
                             this@HomeActivity,
                             Manifest.permission.ACCESS_FINE_LOCATION
                         ) == PackageManager.PERMISSION_GRANTED
                     ) {
-
                         adButton = 0
-                        if (Objects.requireNonNull<String?>(Constants.ADS_VALUES[Constants.MY_WIFI_INTER]).equals("true", ignoreCase = true)) {
+                        if (Objects.requireNonNull<String?>(Constants.ADS_VALUES[Constants.MY_WIFI_INTER])
+                                .equals("true", ignoreCase = true)
+                            && Constants.personalInterCounter % 2 == 1) {
                             showInterstitial()
-                        }else{
-                            startActivity(Intent(this@HomeActivity, OpenWifiScanActivity::class.java))
+                        } else {
+                            startActivity(
+                                Intent(
+                                    this@HomeActivity,
+                                    OpenWifiScanActivity::class.java
+                                )
+                            )
                         }
                     } else {
                         ActivityCompat.requestPermissions(
@@ -559,6 +589,13 @@ class HomeActivity : AppCompatActivity() {
         )
     }
 
+
+    override fun onResume() {
+        super.onResume()
+        adManager!!.loadInterstitial()
+    }
+
+
 //    override fun onResume() {
 //        screenVisible = true
 //        super.onResume()
@@ -592,6 +629,7 @@ class HomeActivity : AppCompatActivity() {
 
 
     var backPressTime = 0L
+
     @SuppressLint("MissingSuperCall")
     override fun onBackPressed() {
         if (backPressTime < System.currentTimeMillis()) {
@@ -636,11 +674,12 @@ class HomeActivity : AppCompatActivity() {
                             explain(getString(R.string.allow_location_permission), 10)
                         }
                     }
-                }catch (e:Exception){
+                } catch (e: Exception) {
                     e.printStackTrace()
                 }
 
             }
+
             20 -> {
 
                 try {
@@ -663,7 +702,7 @@ class HomeActivity : AppCompatActivity() {
                             explain(getString(R.string.allow_both_camera_storage_permission), 20)
                         }
                     }
-                }catch (e:Exception){
+                } catch (e: Exception) {
                     e.printStackTrace()
                 }
 
@@ -671,13 +710,16 @@ class HomeActivity : AppCompatActivity() {
 
         }
     }
+
     override fun onDestroy() {
         super.onDestroy()
 //        adLoadingHandler.removeCallbacks(admobRunnable)
         if (overlayPeramsDialog != null && overlayPeramsDialog!!.isShowing) {
             overlayPeramsDialog?.dismiss()
         }
+        adLoadingDialog?.dismiss()
     }
+
     private fun explain(msg: String, code: Int) {
         dialog = AlertDialog.Builder(this)
         dialog?.setMessage(msg)?.setPositiveButton(
@@ -700,25 +742,31 @@ class HomeActivity : AppCompatActivity() {
             ) { paramDialogInterface, paramInt -> dialog?.create()?.dismiss() }
         dialog?.show()
     }
+
     private fun createBanner() {
-        if (Objects.requireNonNull<String?>(Constants.ADS_VALUES[Constants.MAIN_BANNER]).equals("true", ignoreCase = true)) {
+        if (Objects.requireNonNull<String?>(Constants.ADS_VALUES[Constants.MAIN_BANNER])
+                .equals("true", ignoreCase = true)
+        ) {
             val manager = ApplicationClass.adManager
-            AdManager.getAdManager().createBanner(this@HomeActivity, manager,binding.bannerHome)
+            AdManager.getAdManager().createBanner(this@HomeActivity, manager, binding.bannerHome)
         }
     }
+
     private fun getMediationManager() {
         adManager = ApplicationClass.adManager
     }
+
     private fun createInterstitial() {
         contentCallback = object : AdPaidCallback {
             override fun onShown(ad: AdStatusHandler) {
+                adLoadingDialog?.dismiss()
                 Log.d(ApplicationClass.TAG, "Interstitial Ad shown from " + ad.network)
             }
             override fun onAdRevenuePaid(ad: AdStatusHandler) {
                 Log.d(ApplicationClass.TAG, "Rewarded Ad revenue paid from " + ad.network)
             }
             override fun onShowFailed(message: String) {
-//                ApplicationClass.isInterstitialShowing = false
+                adLoadingDialog?.dismiss()
                 Log.e(ApplicationClass.TAG, "Interstitial Ad show failed: $message")
             }
             override fun onClicked() {
@@ -726,36 +774,69 @@ class HomeActivity : AppCompatActivity() {
             }
             override fun onComplete() {}
             override fun onClosed() {
-//                ApplicationClass.isInterstitialShowing = false
+                adLoadingDialog?.dismiss()
                 Log.d(ApplicationClass.TAG, "Interstitial Ad received Close")
                 when (adButton) {
                     0 -> {
                         startActivity(Intent(this@HomeActivity, OpenWifiScanActivity::class.java))
                     }
                     1 -> {
-                        startActivity(Intent(this@HomeActivity, WifiInformationActivity::class.java))
+                        startActivity(
+                            Intent(
+                                this@HomeActivity,
+                                WifiInformationActivity::class.java
+                            )
+                        )
                     }
                     2 -> {
                         startActivity(Intent(this@HomeActivity, WifiTestSpeedActivity::class.java))
                     }
                     3 -> {
-                        startActivity(Intent(this@HomeActivity, WifiPasswordGeneratorActivity::class.java))
+                        startActivity(
+                            Intent(
+                                this@HomeActivity,
+                                WifiPasswordGeneratorActivity::class.java
+                            )
+                        )
                     }
                     4 -> {
-                        val wifiManager = applicationContext.getSystemService(WIFI_SERVICE) as WifiManager
+                        val wifiManager =
+                            applicationContext.getSystemService(WIFI_SERVICE) as WifiManager
                         wifiManager.isWifiEnabled = true
                         startActivity(Intent(this@HomeActivity, WifiScanActivity::class.java))
+                    }
+                    5 -> {
+                        openDataUsageScreen()
+                    }
+                    6 -> {
+                        startActivity(
+                            Intent(
+                                this@HomeActivity,
+                                WifiAutomaticActivity::class.java
+                            )
+                        )
+                    }
+                    7->{
+                        startActivity(Intent(this@HomeActivity,WifiPasswordGeneratorActivity::class.java))
+                    }
+                    8->{
+                        startActivity(Intent(
+                            this@HomeActivity,
+                            HotSpotShareActivity::class.java
+                        ))
                     }
                 }
             }
         }
     }
+
+
     private fun showInterstitial() {
         if (adManager!!.isInterstitialReady) {
-//            ApplicationClass.isInterstitialShowing = true
+            adLoadingDialog?.show()
             adManager!!.showInterstitial(this@HomeActivity, contentCallback)
         } else {
-//            ApplicationClass.isInterstitialShowing = false
+            adLoadingDialog?.dismiss()
             when (adButton) {
                 0 -> {
                     startActivity(Intent(this@HomeActivity, OpenWifiScanActivity::class.java))
@@ -770,9 +851,30 @@ class HomeActivity : AppCompatActivity() {
                     startActivity(Intent(this, WifiPasswordGeneratorActivity::class.java))
                 }
                 4 -> {
-                    val wifiManager = applicationContext.getSystemService(WIFI_SERVICE) as WifiManager
+                    val wifiManager =
+                        applicationContext.getSystemService(WIFI_SERVICE) as WifiManager
                     wifiManager.isWifiEnabled = true
                     startActivity(Intent(this@HomeActivity, WifiScanActivity::class.java))
+                }
+                5 -> {
+                    openDataUsageScreen()
+                }
+                6 -> {
+                    startActivity(
+                        Intent(
+                            this@HomeActivity,
+                            WifiAutomaticActivity::class.java
+                        )
+                    )
+                }
+                7->{
+                    startActivity(Intent(this, WifiPasswordGeneratorActivity::class.java))
+                }
+                8->{
+                    startActivity(Intent(
+                        this@HomeActivity,
+                        HotSpotShareActivity::class.java
+                    ))
                 }
             }
         }
@@ -841,12 +943,16 @@ class HomeActivity : AppCompatActivity() {
         layoutParams.gravity = Gravity.CENTER
         personalDialog.window!!.attributes = layoutParams
         val adCloseButton = personalDialog.findViewById<ImageView>(R.id.personal_inter_close_button)
-        val adCloseProgress = personalDialog.findViewById<CircularProgressIndicator>(R.id.personal_inter_close_progress)
-        val installButton = personalDialog.findViewById<AppCompatButton>(R.id.personal_inter_ad_button)
+        val adCloseProgress =
+            personalDialog.findViewById<CircularProgressIndicator>(R.id.personal_inter_close_progress)
+        val installButton =
+            personalDialog.findViewById<AppCompatButton>(R.id.personal_inter_ad_button)
         val icon = personalDialog.findViewById<ImageView>(R.id.personal_inter_ad_img)
         val title = personalDialog.findViewById<TextView>(R.id.personal_inter_ad_title)
         val description = personalDialog.findViewById<TextView>(R.id.personal_inter_ad_description)
-        Glide.with(this@HomeActivity).load(Objects.requireNonNull<String?>(Constants.ADS_VALUES[Constants.AD_IMG])).into(icon)
+        Glide.with(this@HomeActivity)
+            .load(Objects.requireNonNull<String?>(Constants.ADS_VALUES[Constants.AD_IMG]))
+            .into(icon)
         title.text = Objects.requireNonNull(Constants.ADS_VALUES[Constants.AD_TITLE])
         description.text = Objects.requireNonNull(Constants.ADS_VALUES[Constants.AD_DESCRIPTION])
         installButton.setOnClickListener {
@@ -869,7 +975,7 @@ class HomeActivity : AppCompatActivity() {
                 animation.animatedValue as Int
             )
         }
-        animator.addListener(object: AnimatorListenerAdapter(){
+        animator.addListener(object : AnimatorListenerAdapter() {
             override fun onAnimationEnd(animation: Animator) {
                 adCloseButton.setOnClickListener {
                     personalDialog.dismiss()

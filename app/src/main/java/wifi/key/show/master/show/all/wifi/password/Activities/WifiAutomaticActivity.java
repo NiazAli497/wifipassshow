@@ -19,11 +19,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.cardview.widget.CardView;
 
+import com.cleversolutions.ads.AdPaidCallback;
+import com.cleversolutions.ads.AdStatusHandler;
+import com.cleversolutions.ads.MediationManager;
 import com.suke.widget.SwitchButton;
 
 import java.util.GregorianCalendar;
 
 import wifi.key.show.master.show.all.wifi.password.ActivityNew.SetTimeActivity;
+import wifi.key.show.master.show.all.wifi.password.Ads.ApplicationClass;
 import wifi.key.show.master.show.all.wifi.password.MyPrefHelper;
 import wifi.key.show.master.show.all.wifi.password.R;
 import wifi.key.show.master.show.all.wifi.password.Recievers.AlarmRecieverFiveMintues;
@@ -32,7 +36,9 @@ import wifi.key.show.master.show.all.wifi.password.SharedPreference.MyPreference
 import wifi.key.show.master.show.all.wifi.password.SharedPreference.SharedPreference;
 import wifi.key.show.master.show.all.wifi.password.SpecificWifiReminder.DatabaseHelper;
 import wifi.key.show.master.show.all.wifi.password.databinding.ActivityAutomaticwifiSettingNewBinding;
+import wifi.key.show.master.show.all.wifi.password.utils.AdLoadingDialog;
 import wifi.key.show.master.show.all.wifi.password.utils.AppUtils;
+import wifi.key.show.master.show.all.wifi.password.utils.Constants;
 
 public class WifiAutomaticActivity extends AppCompatActivity {
     SQLiteDatabase mydb;
@@ -41,6 +47,9 @@ public class WifiAutomaticActivity extends AppCompatActivity {
     MyPreference MyPreference;
     private ActivityAutomaticwifiSettingNewBinding binding;
     MyPrefHelper prefHelper;
+    private MediationManager adManager;
+    private AdLoadingDialog adLoadingDialog;
+    private AdPaidCallback adCallback;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -65,6 +74,18 @@ public class WifiAutomaticActivity extends AppCompatActivity {
         } else {
             adapterNotEmpty(adapter);
         }
+
+        adManager = ApplicationClass.adManager;
+        adLoadingDialog = new AdLoadingDialog(this);
+        adCallback = new AdPaidCallback() {
+            @Override public void onShown(AdStatusHandler ad) { adLoadingDialog.dismiss(); }
+            @Override public void onAdRevenuePaid(AdStatusHandler ad) {}
+            @Override public void onShowFailed(String message) { adLoadingDialog.dismiss(); WifiAutomaticActivity.super.onBackPressed(); }
+            @Override public void onClicked() {}
+            @Override public void onComplete() {}
+            @Override public void onClosed() { adLoadingDialog.dismiss(); WifiAutomaticActivity.super.onBackPressed(); }
+        };
+
     }
 
 
@@ -587,6 +608,17 @@ public class WifiAutomaticActivity extends AppCompatActivity {
 
 
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        Constants.personalInterCounterBack++;
+        if (adManager != null && adManager.isInterstitialReady() && Constants.personalInterCounterBack % 2 == 1) {
+            adLoadingDialog.show();
+            adManager.showInterstitial(this, adCallback);
+        } else {
+            super.onBackPressed();
+        }
     }
 
 }

@@ -134,4 +134,5 @@
     <string name="my_wifi">My Wifi</string>
     <string name="allow_both_camera_storage_permission">Please allow both Camera and Storage Permission to continue</string>
     <string name="alarm_set">Alarm has Set</string>
+    <string name="please_wait_loading_ads_text">Please Wait Loading Ads</string>
 </resources>

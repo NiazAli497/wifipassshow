@@ -279,9 +279,6 @@
             android:layout_centerVertical="true" />
     </RelativeLayout>
 
-
-
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/main_recycler"
         android:layout_width="0dp"

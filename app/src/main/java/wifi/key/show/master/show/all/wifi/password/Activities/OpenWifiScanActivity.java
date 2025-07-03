@@ -35,6 +35,11 @@ import wifi.key.show.master.show.all.wifi.password.R;
 import wifi.key.show.master.show.all.wifi.password.databinding.ActivityOpenWifiScanBinding;
 import wifi.key.show.master.show.all.wifi.password.databinding.OpenwifiListitemBinding;
 import wifi.key.show.master.show.all.wifi.password.utils.Constants;
+import wifi.key.show.master.show.all.wifi.password.utils.AdLoadingDialog;
+import com.cleversolutions.ads.MediationManager;
+import com.cleversolutions.ads.AdPaidCallback;
+import com.cleversolutions.ads.AdStatusHandler;
+import wifi.key.show.master.show.all.wifi.password.Ads.ApplicationClass;
 
 public class OpenWifiScanActivity extends AppCompatActivity {
     WifiManager wifiManager;
@@ -43,6 +48,10 @@ public class OpenWifiScanActivity extends AppCompatActivity {
     public List<ScanResult> networkList;
 
     ActivityOpenWifiScanBinding binding;
+
+    private MediationManager adManager;
+    private AdLoadingDialog adLoadingDialog;
+    private AdPaidCallback adCallback;
 
     private void createBannerAd(){
         if (Objects.requireNonNull(Constants.ADS_VALUES.get(Constants.PERSONAL_BANNER)).equalsIgnoreCase("true")){
@@ -101,8 +110,28 @@ public class OpenWifiScanActivity extends AppCompatActivity {
             binding.recyclerview.setAdapter(new RecyclerAdapter(ssidList));
         }
 
+        adManager = ApplicationClass.adManager;
+        adLoadingDialog = new AdLoadingDialog(this);
+        adCallback = new AdPaidCallback() {
+            @Override public void onShown(AdStatusHandler ad) { adLoadingDialog.dismiss(); }
+            @Override public void onAdRevenuePaid(AdStatusHandler ad) {}
+            @Override public void onShowFailed(String message) { adLoadingDialog.dismiss(); OpenWifiScanActivity.super.onBackPressed(); }
+            @Override public void onClicked() {}
+            @Override public void onComplete() {}
+            @Override public void onClosed() { adLoadingDialog.dismiss(); OpenWifiScanActivity.super.onBackPressed(); }
+        };
     }
 
+    @Override
+    public void onBackPressed() {
+        Constants.personalInterCounterBack++;
+        if (adManager != null && adManager.isInterstitialReady() && Constants.personalInterCounterBack % 2 == 1) {
+            adLoadingDialog.show();
+            adManager.showInterstitial(this, adCallback);
+        } else {
+            super.onBackPressed();
+        }
+    }
 
     public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyViewHolder> {
 
@@ -148,10 +177,6 @@ public class OpenWifiScanActivity extends AppCompatActivity {
             }
         }
     }
-
-
-
-
 
     public static void connectToWifi(Context context, String networkSSID) {
         Toast.makeText(context, R.string.connect_free_wifi, Toast.LENGTH_SHORT).show();

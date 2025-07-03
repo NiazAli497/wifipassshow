@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 public class Constants {
     public static int personalInterCounter = 2;
+    public static int personalInterCounterBack = 2;
     public static HashMap<String,String> ADS_VALUES =  new HashMap<>();
     public static final String JSON_KEY = "SoftAds";
     public static final String APP_OPEN = "APP_OPEN";

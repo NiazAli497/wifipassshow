@@ -22,6 +22,12 @@ import wifi.key.show.master.show.all.wifi.password.R;
 import wifi.key.show.master.show.all.wifi.password.SharedPreference.MyPreference;
 import wifi.key.show.master.show.all.wifi.password.SharedPreference.SharedPreference;
 import wifi.key.show.master.show.all.wifi.password.databinding.ActivityWifiSettingNewBinding;
+import wifi.key.show.master.show.all.wifi.password.utils.AdLoadingDialog;
+import wifi.key.show.master.show.all.wifi.password.utils.Constants;
+import com.cleversolutions.ads.MediationManager;
+import com.cleversolutions.ads.AdPaidCallback;
+import com.cleversolutions.ads.AdStatusHandler;
+import wifi.key.show.master.show.all.wifi.password.Ads.ApplicationClass;
 
 public class WifiSettingsActivity extends AppCompatActivity {
     SharedPreference preference;
@@ -34,6 +40,9 @@ public class WifiSettingsActivity extends AppCompatActivity {
     private NetworkInfo mWifi;
     private boolean isWifiSetting=false;
     MyPrefHelper prefHelper;
+    private MediationManager adManager;
+    private AdLoadingDialog adLoadingDialog;
+    private AdPaidCallback adCallback;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,6 +61,16 @@ public class WifiSettingsActivity extends AppCompatActivity {
 
         prefHelper= new MyPrefHelper(this);
 
+        adManager = ApplicationClass.adManager;
+        adLoadingDialog = new AdLoadingDialog(this);
+        adCallback = new AdPaidCallback() {
+            @Override public void onShown(AdStatusHandler ad) { adLoadingDialog.dismiss(); }
+            @Override public void onAdRevenuePaid(AdStatusHandler ad) {}
+            @Override public void onShowFailed(String message) { adLoadingDialog.dismiss(); WifiSettingsActivity.super.onBackPressed(); }
+            @Override public void onClicked() {}
+            @Override public void onComplete() {}
+            @Override public void onClosed() { adLoadingDialog.dismiss(); WifiSettingsActivity.super.onBackPressed(); }
+        };
 
         IntentFilter filter = new IntentFilter(WifiManager.WIFI_STATE_CHANGED_ACTION);
         registerReceiver(mReceiver, filter);
@@ -151,5 +170,16 @@ public class WifiSettingsActivity extends AppCompatActivity {
             binding.switchWifiEnable.setChecked(isConnected);
         }
     };
+
+    @Override
+    public void onBackPressed() {
+        Constants.personalInterCounterBack++;
+        if (adManager != null && adManager.isInterstitialReady() && Constants.personalInterCounterBack % 2 == 1) {
+            adLoadingDialog.show();
+            adManager.showInterstitial(this, adCallback);
+        } else {
+            super.onBackPressed();
+        }
+    }
 
 }
